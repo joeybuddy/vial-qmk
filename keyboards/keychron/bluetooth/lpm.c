@@ -28,6 +28,8 @@
 #endif
 #include "bluetooth.h"
 #include "indicator.h"
+#include "rgb_matrix_kb.h"
+#include "led_matrix_kb.h"
 #include "lpm.h"
 #include "transport.h"
 #include "battery.h"

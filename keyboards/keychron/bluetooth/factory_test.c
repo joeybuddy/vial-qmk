@@ -21,6 +21,10 @@
 #include "ckbt51.h"
 #endif
 
+#ifndef RAW_EPSIZE
+#    define RAW_EPSIZE 32
+#endif
+
 #ifndef BL_TEST_KEY1
 #    define BL_TEST_KEY1 KC_RIGHT
 #endif

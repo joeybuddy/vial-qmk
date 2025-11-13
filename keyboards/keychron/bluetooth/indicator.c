@@ -22,6 +22,8 @@
 #include "bluetooth_config.h"
 #include "config.h"
 #include "rtc_timer.h"
+#include "rgb_matrix_kb.h"
+#include "led_matrix_kb.h"
 
 #if defined(LED_MATRIX_ENABLE) || defined(RGB_MATRIX_ENABLE)
 #    ifdef LED_MATRIX_ENABLE
@@ -97,9 +99,12 @@ static pin_t host_led_pin_list[HOST_DEVICES_COUNT] = HOST_LED_PIN_LIST;
 #    define SET_LED_LOW_BAT(idx) led_matrix_set_value(idx, 255)
 #    define LED_DRIVER_IS_ENABLED led_matrix_is_enabled
 #    define LED_DRIVER_EECONFIG_RELOAD() \
-        eeprom_read_block(&led_matrix_eeconfig, EECONFIG_LED_MATRIX, sizeof(led_matrix_eeconfig)); \
-        if (!led_matrix_eeconfig.mode) { \
-            eeconfig_update_led_matrix_default(); \
+        { \
+            led_eeconfig_t led_cfg; \
+            eeconfig_read_led_matrix(&led_cfg); \
+            if (!led_cfg.enable) { \
+                eeconfig_update_led_matrix_default(); \
+            } \
         }
 #    define LED_DRIVER_ALLOW_SHUTDOWN led_matrix_driver_allow_shutdown
 #    define LED_DRIVER_ENABLE_NOEEPROM led_matrix_enable_noeeprom
@@ -120,9 +125,12 @@ static pin_t host_led_pin_list[HOST_DEVICES_COUNT] = HOST_LED_PIN_LIST;
 #    define SET_LED_LOW_BAT(idx) rgb_matrix_set_color(idx, 255, 0, 0)
 #    define LED_DRIVER_IS_ENABLED rgb_matrix_is_enabled
 #    define LED_DRIVER_EECONFIG_RELOAD() \
-        eeprom_read_block(&rgb_matrix_config, EECONFIG_RGB_MATRIX, sizeof(rgb_matrix_config)); \
-        if (!rgb_matrix_config.mode) {  \
-            eeconfig_update_rgb_matrix_default();  \
+        { \
+            rgb_config_t rgb_cfg; \
+            eeconfig_read_rgb_matrix(&rgb_cfg); \
+            if (!rgb_cfg.enable) { \
+                eeconfig_update_rgb_matrix_default(); \
+            } \
         }
 #    define LED_DRIVER_ALLOW_SHUTDOWN rgb_matrix_driver_allow_shutdown
 #    define LED_DRIVER_ENABLE_NOEEPROM rgb_matrix_enable_noeeprom
@@ -564,15 +572,11 @@ bool led_update_kb(led_t led_state) {
         led_update_ports(led_state);
 
         if (!LED_DRIVER_IS_ENABLED()) {
-    #    if defined(LED_MATRIX_DRIVER_SHUTDOWN_ENABLE) || defined(RGB_MATRIX_DRIVER_SHUTDOWN_ENABLE)
-            LED_DRIVER.exit_shutdown();
-    #    endif
+            // Note: exit_shutdown() and shutdown() methods are not available in current QMK
+            // This is a simplified version for compatibility
             SET_ALL_LED_OFF();
             os_state_indicate();
             LED_DRIVER.flush();
-    #    if defined(LED_MATRIX_DRIVER_SHUTDOWN_ENABLE) || defined(RGB_MATRIX_DRIVER_SHUTDOWN_ENABLE)
-            if (LED_DRIVER_ALLOW_SHUTDOWN()) LED_DRIVER.shutdown();
-    #    endif
         }
     }
 
