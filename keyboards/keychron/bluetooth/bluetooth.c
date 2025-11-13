@@ -45,11 +45,12 @@ uint8_t                      bluetooth_report_protocol = true;
 /* declarations */
 uint8_t bluetooth_keyboard_leds(void);
 void    bluetooth_send_keyboard(report_keyboard_t *report);
+void    bluetooth_send_nkro(report_nkro_t *report);
 void    bluetooth_send_mouse(report_mouse_t *report);
 void    bluetooth_send_extra(report_extra_t *report);
 
 /* host struct */
-host_driver_t bluetooth_driver = {bluetooth_keyboard_leds, bluetooth_send_keyboard, bluetooth_send_mouse, bluetooth_send_extra};
+host_driver_t bluetooth_driver = {bluetooth_keyboard_leds, bluetooth_send_keyboard, bluetooth_send_nkro, bluetooth_send_mouse, bluetooth_send_extra};
 
 #define BLUETOOTH_EVENT_QUEUE_SIZE 16
 bluetooth_event_t bt_event_queue[BLUETOOTH_EVENT_QUEUE_SIZE];
@@ -102,8 +103,8 @@ void bluetooth_init(void) {
     rtc_timer_init();
 
 #ifdef BLUETOOTH_NKRO_ENABLE
-    keymap_config.raw = eeconfig_read_keymap();
-    nkro.bluetooth    = keymap_config.nkro;
+    eeconfig_read_keymap(&keymap_config);
+    nkro.bluetooth = keymap_config.nkro;
 #endif
 }
 
@@ -341,6 +342,15 @@ void bluetooth_send_keyboard(report_keyboard_t *report) {
     } else if (bt_state != BLUETOOTH_RESET) {
         bluetooth_connect();
     }
+}
+
+void bluetooth_send_nkro(report_nkro_t *report) {
+    // NKRO is handled within bluetooth_send_keyboard
+    // This wrapper is needed for the host_driver_t interface
+    report_keyboard_t keyboard_report;
+    keyboard_report.mods = report->mods;
+    memcpy(keyboard_report.keys, report->bits, sizeof(keyboard_report.keys));
+    bluetooth_send_keyboard(&keyboard_report);
 }
 
 void bluetooth_send_mouse(report_mouse_t *report) {

@@ -20,8 +20,8 @@
 #define DRIVE_SHRIFT_REGISTER_WITH_SPI
 
 /* Turn off effects when suspended */
-#define RGB_DISABLE_WHEN_USB_SUSPENDED
-#define LED_DISABLE_WHEN_USB_SUSPENDED
+#define RGB_MATRIX_SLEEP
+#define LED_MATRIX_SLEEP
 
 /* DIP switch for Mac/win OS switch */
 #define DIP_SWITCH_PINS \
