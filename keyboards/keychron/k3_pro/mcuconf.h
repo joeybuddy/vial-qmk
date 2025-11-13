@@ -34,6 +34,18 @@
 #define STM32_SPI_USE_SPI1 TRUE
 
 #ifdef KC_BLUETOOTH_ENABLE
+#    undef STM32_LSE_ENABLED
+#    define STM32_LSE_ENABLED TRUE
+
+#    undef STM32_LSECLK
+#    define STM32_LSECLK 32768U
+
+#    undef STM32_LSEDRV
+#    define STM32_LSEDRV (3U << 3U)
+
 #    undef STM32_SERIAL_USE_USART2
 #    define STM32_SERIAL_USE_USART2 TRUE
+
+#    undef STM32_RTCSEL
+#    define STM32_RTCSEL STM32_RTCSEL_LSE
 #endif
