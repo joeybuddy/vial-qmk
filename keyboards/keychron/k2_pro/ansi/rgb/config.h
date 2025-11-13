@@ -18,13 +18,11 @@
 
 #ifdef RGB_MATRIX_ENABLE
 /* RGB Matrix driver configuration */
-#    define DRIVER_COUNT 2
+#    define SNLED27351_DRIVER_COUNT 2
 
-#    define DRIVER_ADDR_1 0b1110111
-#    define DRIVER_ADDR_2 0b1110100
-#    define DRIVER_1_LED_COUNT 46
-#    define DRIVER_2_LED_COUNT 38
-#    define RGB_MATRIX_LED_COUNT (DRIVER_1_LED_COUNT + DRIVER_2_LED_COUNT)
+#    define SNLED27351_I2C_ADDRESS_1 0b1110111
+#    define SNLED27351_I2C_ADDRESS_2 0b1110100
+#    define RGB_MATRIX_LED_COUNT (46 + 38)
 
 /* Set to infinit, which is use in USB mode by default */
 #    define RGB_MATRIX_TIMEOUT RGB_MATRIX_TIMEOUT_INFINITE
