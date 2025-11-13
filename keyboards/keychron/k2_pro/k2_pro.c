@@ -51,7 +51,7 @@ key_combination_t key_comb_list[4] = {
 bool                   firstDisconnect  = true;
 bool                   bt_factory_reset = false;
 static virtual_timer_t pairing_key_timer;
-extern uint8_t         g_pwm_buffer[DRIVER_COUNT][192];
+extern uint8_t         g_pwm_buffer[SNLED27351_DRIVER_COUNT][192];
 
 static void pairing_key_timer_cb(void *arg) {
     bluetooth_pairing_ex(*(uint8_t *)arg, NULL);
@@ -244,7 +244,7 @@ void battery_calculte_voltage(uint16_t value) {
     if (led_matrix_is_enabled()) {
         uint32_t totalBuf = 0;
 
-        for (uint8_t i = 0; i < DRIVER_COUNT; i++)
+        for (uint8_t i = 0; i < SNLED27351_DRIVER_COUNT; i++)
             for (uint8_t j = 0; j < 192; j++)
                 totalBuf += g_pwm_buffer[i][j];
         /* We assumpt it is linear relationship*/
@@ -255,7 +255,7 @@ void battery_calculte_voltage(uint16_t value) {
     if (rgb_matrix_is_enabled()) {
         uint32_t totalBuf = 0;
 
-        for (uint8_t i = 0; i < DRIVER_COUNT; i++)
+        for (uint8_t i = 0; i < SNLED27351_DRIVER_COUNT; i++)
             for (uint8_t j = 0; j < 192; j++)
                 totalBuf += g_pwm_buffer[i][j];
         /* We assumpt it is linear relationship*/
