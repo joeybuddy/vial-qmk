@@ -4,6 +4,10 @@ OPT_DEFS += -DNO_USB_STARTUP_CHECK -DENABLE_FACTORY_TEST
 
 SRC += matrix.c
 
+# Include keychron common files for custom keycodes
+VPATH += keyboards/keychron/common
+SRC += keychron_common.c
+
 include keyboards/keychron/bluetooth/bluetooth.mk
 
 
