@@ -1,0 +1,149 @@
+name: Build Keychron Keyboards
+
+on:
+  push:
+    branches:
+      - 'keychron'
+    tags:
+      - 'v*'
+  pull_request:
+    paths:
+      - 'keyboards/keychron/**'
+  workflow_dispatch:
+
+jobs:
+  build-keychron:
+    name: Build Keychron Keyboards
+    runs-on: ubuntu-latest
+    container: ghcr.io/qmk/qmk_cli@sha256:2dc05fc9f32efebd6b05c2b8676ee548358bc7e151e9dbf4dac6b6eed4513b07
+    
+    strategy:
+      matrix:
+        keyboard:
+          - keychron/k2_pro/ansi/rgb
+          - keychron/k3_pro/ansi/rgb
+          - keychron/q8_pro/ansi_encoder
+        keymap:
+          - vial
+          - default
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          submodules: recursive
+      
+      - name: Configure git
+        run: git config --global --add safe.directory $(pwd)
+      
+      - name: Build firmware
+        id: build
+        run: |
+          qmk compile -kb ${{ matrix.keyboard }} -km ${{ matrix.keymap }}
+          
+          # Find the built firmware
+          FIRMWARE_FILE=$(find .build -name "*.bin" -o -name "*.hex" -o -name "*.uf2" | head -n 1)
+          if [ -z "$FIRMWARE_FILE" ]; then
+            echo "::error::No firmware file found"
+            exit 1
+          fi
+          
+          # Get just the filename
+          FIRMWARE_NAME=$(basename "$FIRMWARE_FILE")
+          echo "firmware_file=$FIRMWARE_FILE" >> $GITHUB_OUTPUT
+          echo "firmware_name=$FIRMWARE_NAME" >> $GITHUB_OUTPUT
+          
+          # Create keyboard-friendly name for artifact
+          KEYBOARD_SAFE=$(echo "${{ matrix.keyboard }}" | tr '/' '_')
+          echo "keyboard_safe=$KEYBOARD_SAFE" >> $GITHUB_OUTPUT
+      
+      - name: Upload firmware artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: firmware-${{ steps.build.outputs.keyboard_safe }}-${{ matrix.keymap }}
+          path: ${{ steps.build.outputs.firmware_file }}
+          retention-days: 30
+      
+      - name: Copy firmware to keyboard directory
+        if: matrix.keymap == 'vial'
+        run: |
+          KEYBOARD_DIR="keyboards/${{ matrix.keyboard }}/firmware"
+          mkdir -p "$KEYBOARD_DIR"
+          cp "${{ steps.build.outputs.firmware_file }}" "$KEYBOARD_DIR/"
+          echo "Firmware copied to $KEYBOARD_DIR/${{ steps.build.outputs.firmware_name }}"
+      
+      - name: Commit firmware to repository
+        if: matrix.keymap == 'vial' && github.ref == 'refs/heads/keychron'
+        run: |
+          git config user.name "GitHub Actions Bot"
+          git config user.email "actions@github.com"
+          git add keyboards/${{ matrix.keyboard }}/firmware/
+          git diff --staged --quiet || git commit -m "Add built firmware for ${{ matrix.keyboard }}"
+  
+  create-release:
+    name: Create GitHub Release
+    needs: build-keychron
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+      
+      - name: Prepare release files
+        run: |
+          mkdir -p release
+          # Copy vial keymaps to release directory with descriptive names
+          find artifacts -name "firmware-keychron_k2_pro_ansi_rgb-vial" -exec cp {}/*.bin release/keychron_k2_pro_ansi_rgb_vial.bin \; || true
+          find artifacts -name "firmware-keychron_k3_pro_ansi_rgb-vial" -exec cp {}/*.bin release/keychron_k3_pro_ansi_rgb_vial.bin \; || true
+          find artifacts -name "firmware-keychron_q8_pro_ansi_encoder-vial" -exec cp {}/*.bin release/keychron_q8_pro_ansi_encoder_vial.bin \; || true
+          
+          # List what we have
+          ls -lh release/
+      
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: release/*.bin
+          body: |
+            ## Keychron Wireless Keyboards - Vial Firmware
+            
+            This release includes Vial-enabled firmware for the following Keychron wireless keyboards:
+            
+            ### Keyboards Included
+            - **K2 Pro (ANSI RGB)** - 84-key layout with RGB matrix
+            - **K3 Pro (ANSI RGB)** - 84-key low-profile variant  
+            - **Q8 Pro (ANSI Encoder)** - 69-key Alice layout with rotary encoder
+            
+            ### Features
+            ✅ Full USB (cable) connectivity
+            ✅ Full Bluetooth connectivity with multi-host pairing (3 devices)
+            ✅ Vial support for easy keymap customization
+            ✅ Battery management and level indication
+            ✅ Power saving features
+            ✅ Custom keycodes: BT_HST1-3 (host switching), BAT_LVL (battery level)
+            ✅ Mac/Windows shortcuts built-in
+            
+            ### Installation
+            1. Download the appropriate `.bin` file for your keyboard
+            2. Put your keyboard into bootloader mode (usually Fn+Esc or reset button)
+            3. Flash using QMK Toolbox or other flashing tool
+            
+            ### Notes
+            - Due to EEPROM constraints, VIALRGB is disabled (RGB still works, just not per-key configurable)
+            - 2 layers available by default (can be adjusted if needed)
+            - Both cable and Bluetooth work fully with all features
+            
+            For more information, see the [PR documentation](https://github.com/joeybuddy/vial-qmk/pull/1).
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -38,6 +38,11 @@ quantum/version.h
 *.uf2
 *.vfw
 
+# Allow firmware binaries in keyboard firmware directories
+!keyboards/**/firmware/*.bin
+!keyboards/**/firmware/*.hex
+!keyboards/**/firmware/*.uf2
+
 # DD config at wrong location
 /keyboards/**/keymaps/*/info.json
 /keyboards/**/keymaps/*/keyboard.json
