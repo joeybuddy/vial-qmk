@@ -141,6 +141,10 @@ void keyboard_post_init_kb(void) {
 
     ckbt51_init(false);
     bluetooth_init();
+    
+    /* Set initial transport based on the switch position */
+    uint8_t switch_state = readPin(USB_BT_MODE_SELECT_PIN);
+    set_transport(switch_state == 0 ? TRANSPORT_BLUETOOTH : TRANSPORT_USB);
 #endif
 
     // Note: Encoder initialization is now handled by QMK core
