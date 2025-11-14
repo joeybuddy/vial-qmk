@@ -52,5 +52,7 @@ typedef struct PACKED {
     uint8_t keycode[3];
 } key_combination_t;
 
+extern key_combination_t key_comb_list[4];
+
 void housekeeping_task_keychron(void);
 bool process_record_keychron(uint16_t keycode, keyrecord_t *record);

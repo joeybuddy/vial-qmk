@@ -16,7 +16,8 @@ SRC += \
      $(BLUETOOTH_DIR)/bat_level_animation.c \
      $(BLUETOOTH_DIR)/rtc_timer.c \
      $(BLUETOOTH_DIR)/rgb_matrix_kb.c \
-     $(BLUETOOTH_DIR)/led_matrix_kb.c
+     $(BLUETOOTH_DIR)/led_matrix_kb.c \
+     $(BLUETOOTH_DIR)/snled27351_driver_compat.c
 
 VPATH += $(TOP_DIR)/keyboards/keychron/$(BLUETOOTH_DIR)
 

@@ -34,10 +34,28 @@ void led_matrix_disable_time_reset(void) {
 }
 
 bool led_matrix_driver_allow_shutdown(void) {
+#if defined(LED_MATRIX_DRIVER_SHUTDOWN_ENABLE)
+    // Don't allow shutdown if any lock LED is active
+#    if defined(NUM_LOCK_INDEX)
+    if (host_keyboard_led_state().num_lock) return false;
+#    endif
+#    if defined(CAPS_LOCK_INDEX) && !defined(DIM_CAPS_LOCK)
+    if (host_keyboard_led_state().caps_lock) return false;
+#    endif
+#    if defined(SCROLL_LOCK_INDEX)
+    if (host_keyboard_led_state().scroll_lock) return false;
+#    endif
+#    if defined(COMPOSE_LOCK_INDEX)
+    if (host_keyboard_led_state().compose) return false;
+#    endif
+#    if defined(KANA_LOCK_INDEX)
+    if (host_keyboard_led_state().kana) return false;
+#    endif
     // Allow shutdown if timeout is set and exceeded
     if (led_matrix_disable_timeout > 0) {
         return (timer_elapsed32(led_matrix_last_activity) > led_matrix_disable_timeout);
     }
+#endif
     return false;
 }
 

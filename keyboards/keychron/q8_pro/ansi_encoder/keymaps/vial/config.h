@@ -9,4 +9,7 @@
 
 // Reduce EEPROM usage for wireless keyboards
 #define DYNAMIC_KEYMAP_LAYER_COUNT 5
-#define DYNAMIC_KEYMAP_MACRO_COUNT 16
+#define DYNAMIC_KEYMAP_MACRO_COUNT 0
+// Minimize tap dance and combo to save EEPROM (cannot be 0)
+#define VIAL_TAP_DANCE_ENTRIES 1
+#define VIAL_COMBO_ENTRIES 1
