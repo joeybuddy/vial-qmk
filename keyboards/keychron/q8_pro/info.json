@@ -64,9 +64,6 @@
             {"pin_a": "A0", "pin_b": "A10"}
         ]
     },
-    "dynamic_keymap": {
-        "layer_count": 5
-    },
     "layouts": {
         "LAYOUT_69_ansi": {
             "layout": [
