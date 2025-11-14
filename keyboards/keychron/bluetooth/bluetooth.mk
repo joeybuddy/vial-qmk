@@ -2,6 +2,8 @@
 OPT_DEFS += -DKC_BLUETOOTH_ENABLE
 
 BLUETOOTH_DIR = bluetooth
+KEYCHRON_COMMON_DIR = common
+
 SRC += \
      $(BLUETOOTH_DIR)/bluetooth.c \
      $(BLUETOOTH_DIR)/report_buffer.c \
@@ -20,6 +22,7 @@ SRC += \
      $(BLUETOOTH_DIR)/snled27351_driver_compat.c
 
 VPATH += $(TOP_DIR)/keyboards/keychron/$(BLUETOOTH_DIR)
+VPATH += $(TOP_DIR)/keyboards/keychron/$(KEYCHRON_COMMON_DIR)
 
 # Work around RTC clock issue without touching chibios, refer to the link for this bug
 # https://forum.chibios.org/viewtopic.php?f=35&t=6197
