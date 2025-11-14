@@ -23,33 +23,21 @@
 
 #define ___ KC_NO
 
-#ifdef VIA_ENABLE
-#    define USER_START QK_KB_0
-#else
-#    define USER_START SAFE_RANGE
-#endif
+#include "keychron_common.h"
 
 // clang-format off
 enum {
-    KC_LOPTN = USER_START,
-    KC_ROPTN,
-    KC_LCMMD,
-    KC_RCMMD,
-    KC_TASK,
-    KC_FILE,
-    KC_SNAP,
-    KC_CTANA,
-    KC_SIRI,
 #ifdef KC_BLUETOOTH_ENABLE
-    BT_HST1,
+    BT_HST1 = NEW_SAFE_RANGE,
     BT_HST2,
     BT_HST3,
     BAT_LVL,
+    KB_SAFE_RANGE
 #else
     BT_HST1 = KC_TRNS,
     BT_HST2 = KC_TRNS,
     BT_HST3 = KC_TRNS,
     BAT_LVL = KC_TRNS,
+    KB_SAFE_RANGE = NEW_SAFE_RANGE
 #endif
-	NEW_SAFE_RANGE
 };
