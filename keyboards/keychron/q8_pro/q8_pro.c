@@ -29,10 +29,6 @@
 #    include "factory_test.h"
 #endif
 
-typedef struct PACKED {
-    uint8_t len;
-    uint8_t keycode[3];
-} key_combination_t;
 
 static uint32_t factory_timer_buffer = 0;
 static uint32_t siri_timer_buffer    = 0;

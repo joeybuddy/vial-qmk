@@ -31,11 +31,6 @@
 
 #define POWER_ON_LED_DURATION 3000
 
-typedef struct PACKED {
-    uint8_t len;
-    uint8_t keycode[3];
-} key_combination_t;
-
 static uint32_t power_on_indicator_timer_buffer;
 static uint32_t siri_timer_buffer = 0;
 static uint8_t  mac_keycode[4]    = {KC_LOPT, KC_ROPT, KC_LCMD, KC_RCMD};
