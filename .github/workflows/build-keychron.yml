@@ -134,8 +134,16 @@ jobs:
             
             ### Installation
             1. Download the appropriate `.bin` file for your keyboard
-            2. Put your keyboard into bootloader mode (usually Fn+Esc or reset button)
-            3. Flash using QMK Toolbox or other flashing tool
+            2. Put your keyboard into bootloader mode:
+               - **Important**: Turn the side switch to "Off" position first
+               - Connect USB cable to your computer
+               - Hold down the Esc key (or press the reset button under the spacebar)
+               - While holding, toggle the side switch to "Cable" position
+               - The keyboard should now appear as a DFU device
+            3. Flash using QMK Toolbox, dfu-util, or STM32CubeProgrammer:
+               - **QMK Toolbox**: Select the `.bin` file, ensure "STM32" and "Auto-Flash" are enabled, click Flash
+               - **dfu-util**: Run `dfu-util -d 0483:DF11 -a 0 -s 0x08000000:leave -D firmware.bin`
+            4. After flashing completes, toggle the side switch to your preferred mode (Cable or Bluetooth)
             
             ### Notes
             - Due to EEPROM constraints, VIALRGB is disabled (RGB still works, just not per-key configurable)
