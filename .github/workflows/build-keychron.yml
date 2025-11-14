@@ -31,7 +31,6 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          persist-credentials: false
           submodules: recursive
       
       - name: Configure git
@@ -65,21 +64,57 @@ jobs:
           path: ${{ steps.build.outputs.firmware_file }}
           retention-days: 30
       
-      - name: Copy firmware to keyboard directory
-        if: matrix.keymap == 'vial'
-        run: |
-          KEYBOARD_DIR="keyboards/${{ matrix.keyboard }}/firmware"
-          mkdir -p "$KEYBOARD_DIR"
-          cp "${{ steps.build.outputs.firmware_file }}" "$KEYBOARD_DIR/"
-          echo "Firmware copied to $KEYBOARD_DIR/${{ steps.build.outputs.firmware_name }}"
+  
+  commit-firmware:
+    name: Commit Firmware to Repository
+    needs: build-keychron
+    if: github.ref == 'refs/heads/keychron'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
       
-      - name: Commit firmware to repository
-        if: matrix.keymap == 'vial' && github.ref == 'refs/heads/keychron'
+      - name: Download all vial firmware artifacts
+        uses: actions/download-artifact@v4
+        with:
+          pattern: firmware-*-vial
+          path: artifacts
+      
+      - name: Copy firmware to keyboard directories
+        run: |
+          # Copy each firmware to its keyboard directory
+          for artifact_dir in artifacts/firmware-*-vial/; do
+            if [ -d "$artifact_dir" ]; then
+              # Extract keyboard path from artifact name
+              artifact_name=$(basename "$artifact_dir")
+              keyboard_path=$(echo "$artifact_name" | sed 's/^firmware-//' | sed 's/-vial$//' | tr '_' '/')
+              
+              # Create firmware directory
+              firmware_dir="keyboards/$keyboard_path/firmware"
+              mkdir -p "$firmware_dir"
+              
+              # Copy firmware files
+              cp "$artifact_dir"/* "$firmware_dir/" 2>/dev/null || true
+              echo "Copied firmware to $firmware_dir"
+            fi
+          done
+      
+      - name: Commit and push firmware
         run: |
           git config user.name "GitHub Actions Bot"
           git config user.email "actions@github.com"
-          git add keyboards/${{ matrix.keyboard }}/firmware/
-          git diff --staged --quiet || git commit -m "Add built firmware for ${{ matrix.keyboard }}"
+          git add keyboards/keychron/*/firmware/ keyboards/keychron/*/*/firmware/
+          if ! git diff --staged --quiet; then
+            git commit -m "Update built firmware [skip ci]"
+            git push origin keychron
+          else
+            echo "No firmware changes to commit"
+          fi
   
   create-release:
     name: Create GitHub Release
