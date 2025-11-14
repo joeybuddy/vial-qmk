@@ -8,8 +8,8 @@
 #define VIAL_UNLOCK_COMBO_COLS { 0, 13 }
 
 // Reduce EEPROM usage for wireless keyboards
-#define DYNAMIC_KEYMAP_LAYER_COUNT 2
+#define DYNAMIC_KEYMAP_LAYER_COUNT 4
 #define DYNAMIC_KEYMAP_MACRO_COUNT 0
-// Disable tap dance to save EEPROM
-#define VIAL_TAP_DANCE_ENTRIES 0
-#define VIAL_COMBO_ENTRIES 0
+// Minimize tap dance and combo to save EEPROM (cannot be 0)
+#define VIAL_TAP_DANCE_ENTRIES 1
+#define VIAL_COMBO_ENTRIES 1

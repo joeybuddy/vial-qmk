@@ -36,18 +36,13 @@ static uint32_t power_on_indicator_timer_buffer;
 static uint32_t siri_timer_buffer = 0;
 static uint8_t  mac_keycode[4]    = {KC_LOPT, KC_ROPT, KC_LCMD, KC_RCMD};
 
-key_combination_t key_comb_list[4] = {
-    {2, {KC_LWIN, KC_TAB}},        // Task (win)
-    {2, {KC_LWIN, KC_E}},          // Files (win)
-    {3, {KC_LSFT, KC_LGUI, KC_4}}, // Snapshot (mac)
-    {2, {KC_LWIN, KC_C}}           // Cortana (win)
-};
-
 #ifdef KC_BLUETOOTH_ENABLE
 bool                   firstDisconnect  = true;
 bool                   bt_factory_reset = false;
 static virtual_timer_t pairing_key_timer;
-extern uint8_t         g_pwm_buffer[SNLED27351_DRIVER_COUNT][192];
+#    ifdef RGB_MATRIX_ENABLE
+#        include "snled27351_driver_compat.h"
+#    endif
 
 static void pairing_key_timer_cb(void *arg) {
     bluetooth_pairing_ex(*(uint8_t *)arg, NULL);
@@ -243,22 +238,14 @@ void battery_calculte_voltage(uint16_t value) {
 
 #ifdef LED_MATRIX_ENABLE
     if (led_matrix_is_enabled()) {
-        uint32_t totalBuf = 0;
-
-        for (uint8_t i = 0; i < SNLED27351_DRIVER_COUNT; i++)
-            for (uint8_t j = 0; j < 192; j++)
-                totalBuf += g_pwm_buffer[i][j];
+        uint32_t totalBuf = snled27351_get_brightness_sum();
         /* We assumpt it is linear relationship*/
         voltage += (30 * totalBuf / LED_MATRIX_LED_COUNT / 255);
     }
 #endif
 #ifdef RGB_MATRIX_ENABLE
     if (rgb_matrix_is_enabled()) {
-        uint32_t totalBuf = 0;
-
-        for (uint8_t i = 0; i < SNLED27351_DRIVER_COUNT; i++)
-            for (uint8_t j = 0; j < 192; j++)
-                totalBuf += g_pwm_buffer[i][j];
+        uint32_t totalBuf = snled27351_get_brightness_sum();
         /* We assumpt it is linear relationship*/
         uint32_t compensation = 60 * totalBuf / RGB_MATRIX_LED_COUNT / 255 / 3;
         voltage += compensation;

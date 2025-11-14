@@ -587,25 +587,7 @@ void LED_NONE_INDICATORS_KB(void) {
     os_state_indicate();
 }
 
-#    if defined(LED_MATRIX_DRIVER_SHUTDOWN_ENABLE) || defined(RGB_MATRIX_DRIVER_SHUTDOWN_ENABLE)
-bool LED_DRIVER_ALLOW_SHUTDOWN(void) {
-#        if defined(NUM_LOCK_INDEX)
-    if (host_keyboard_led_state().num_lock) return false;
-#        endif
-#        if defined(CAPS_LOCK_INDEX) && !defined(DIM_CAPS_LOCK)
-    if (host_keyboard_led_state().caps_lock) return false;
-#        endif
-#        if defined(SCROLL_LOCK_INDEX)
-    if (host_keyboard_led_state().scroll_lock) return false;
-#        endif
-#        if defined(COMPOSE_LOCK_INDEX)
-    if (host_keyboard_led_state().compose) return false;
-#        endif
-#        if defined(KANA_LOCK_INDEX)
-    if (host_keyboard_led_state().kana) return false;
-#        endif
-    return true;
-}
-#    endif
+// LED_DRIVER_ALLOW_SHUTDOWN function is now defined in rgb_matrix_kb.c and led_matrix_kb.c
+// This avoids duplicate definitions when using the macro expansion
 
 #endif

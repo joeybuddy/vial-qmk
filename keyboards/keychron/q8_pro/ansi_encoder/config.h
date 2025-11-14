@@ -23,7 +23,7 @@
 #    define SNLED27351_I2C_ADDRESS_2 0b1110100
 
 /* RGB Matrix Configuration */
-#    define RGB_MATRIX_LED_COUNT (29 + 39)
+#    define RGB_MATRIX_LED_COUNT (29 + 40)
 
 /* Set to infinit, which is use in USB mode by default */
 #    define RGB_MATRIX_TIMEOUT RGB_MATRIX_TIMEOUT_INFINITE
