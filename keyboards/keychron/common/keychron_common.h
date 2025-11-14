@@ -39,9 +39,13 @@ enum custom_keycodes {
 };
 
 #define KC_TASK KC_TASK_VIEW
+#define KC_FILE KC_FILE_EXPLORER
 #define KC_FLXP KC_FILE_EXPLORER
 #define KC_SNAP KC_SCREEN_SHOT
 #define KC_CRTA KC_CORTANA
+#define KC_CTANA KC_CORTANA
+
+#define NEW_SAFE_RANGE SAFE_RANGE
 
 typedef struct PACKED {
     uint8_t len;
