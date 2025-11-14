@@ -8,5 +8,5 @@
 #define VIAL_UNLOCK_COMBO_COLS { 0, 0 }
 
 // Reduce EEPROM usage for wireless keyboards
-#define DYNAMIC_KEYMAP_LAYER_COUNT 4
+#define DYNAMIC_KEYMAP_LAYER_COUNT 5
 #define DYNAMIC_KEYMAP_MACRO_COUNT 16
