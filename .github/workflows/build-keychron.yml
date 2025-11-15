@@ -42,11 +42,21 @@ jobs:
         run: |
           qmk compile -kb ${{ matrix.keyboard }} -km ${{ matrix.keymap }}
           
-          # Find the built firmware
-          FIRMWARE_FILE=$(find .build -name "*.bin" -o -name "*.hex" -o -name "*.uf2" | head -n 1)
+          # Find the built firmware (with proper parentheses for OR operations)
+          FIRMWARE_FILE=$(find .build \( -name "*.bin" -o -name "*.hex" -o -name "*.uf2" \) -type f | head -n 1)
           if [ -z "$FIRMWARE_FILE" ]; then
             echo "::error::No firmware file found"
+            echo "::error::Contents of .build directory:"
+            ls -lah .build/ || true
             exit 1
+          fi
+          
+          # Validate firmware file size (should be at least 20KB for reasonable firmware)
+          FIRMWARE_SIZE=$(stat -f%z "$FIRMWARE_FILE" 2>/dev/null || stat -c%s "$FIRMWARE_FILE" 2>/dev/null)
+          if [ "$FIRMWARE_SIZE" -lt 20480 ]; then
+            echo "::warning::Firmware file seems unusually small: $FIRMWARE_SIZE bytes"
+            echo "::warning::File: $FIRMWARE_FILE"
+            ls -lh "$FIRMWARE_FILE"
           fi
           
           # Get just the filename
@@ -57,6 +67,11 @@ jobs:
           # Create keyboard-friendly name for artifact
           KEYBOARD_SAFE=$(echo "${{ matrix.keyboard }}" | tr '/' '_')
           echo "keyboard_safe=$KEYBOARD_SAFE" >> $GITHUB_OUTPUT
+          
+          # Debug output
+          echo "Found firmware file: $FIRMWARE_FILE"
+          echo "Firmware size: $FIRMWARE_SIZE bytes ($(echo "scale=2; $FIRMWARE_SIZE/1024" | bc)KB)"
+          ls -lh "$FIRMWARE_FILE"
       
       - name: Upload firmware artifact
         uses: actions/upload-artifact@v4
@@ -64,6 +79,8 @@ jobs:
           name: firmware-${{ steps.build.outputs.keyboard_safe }}-${{ matrix.keymap }}
           path: ${{ steps.build.outputs.firmware_file }}
           retention-days: 30
+          compression-level: 0
+          if-no-files-found: error
       
       - name: Copy firmware to keyboard directory
         if: matrix.keymap == 'vial'
